@@ -7,7 +7,7 @@ import "./CSS/Cart.css";
 
 const Cart = () => {
   const { cart, clearCart, increaseQty, removeItem, decreaseQty } = useCart();
-  const api_url = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const api_url = import.meta.env.VITE_API_URL || "https://backend-kuo4.onrender.com";
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);

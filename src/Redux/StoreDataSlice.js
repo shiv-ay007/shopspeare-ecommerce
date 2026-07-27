@@ -160,10 +160,9 @@ const StoreDataSlice = createSlice({
 
 export const { setCategory, setProduct, setLoading } = StoreDataSlice.actions;
 
-const api_url = import.meta.env.VITE_API_URL;
+const api_url = import.meta.env.VITE_API_URL || "https://backend-kuo4.onrender.com";
 
 export const fetchCategory = () => async (dispatch) => {
-  if (!api_url) return;
   try {
     dispatch(setLoading(true));
     const res = await axios.get(`${api_url}/api/category/all-category`);

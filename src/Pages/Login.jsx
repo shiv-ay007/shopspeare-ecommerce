@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import "./CSS/Login.css";
 
 const Login = () => {
-  const api_url = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const api_url = import.meta.env.VITE_API_URL || "https://backend-kuo4.onrender.com";
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
