@@ -14,8 +14,8 @@ const Product = () => {
   const { addToCart, cart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
-  const categoryData = useSelector((state) => state.storeData.category);
-  const productData = useSelector((state) => state.storeData.products);
+  const categoryData = useSelector((state) => state.storeData.category) || [];
+  const productData = useSelector((state) => state.storeData.products) || [];
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [search, setSearch] = useState("");
@@ -30,30 +30,55 @@ const Product = () => {
     dispatch(fetchProduct());
   }, [dispatch]);
 
-  // Synchronize URL search params ?search=query
+  // Synchronize URL search & category params ?search=query&category=catName
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const searchQuery = params.get("search");
-    if (searchQuery) {
-      setSearch(searchQuery);
-    }
+    const categoryQuery = params.get("category");
+
+    if (searchQuery) setSearch(searchQuery);
+    if (categoryQuery) setSelectedCategory(categoryQuery);
   }, [location.search]);
 
   const getCartQty = (id) => cart.find((c) => c._id === id)?.qty || 0;
 
-  // Filter products
+  // Robust Category Matching Helper
+  const matchesCategory = (item, selCat) => {
+    if (!selCat) return true;
+    const target = selCat.trim().toLowerCase();
+
+    // If item.category is an object
+    if (item.category && typeof item.category === "object") {
+      const catId = (item.category._id || "").toString().toLowerCase();
+      const catName = (item.category.categoryName || "").toString().toLowerCase();
+      return catId === target || catName === target;
+    }
+
+    // If item.category is a string
+    if (typeof item.category === "string") {
+      const itemCatStr = item.category.trim().toLowerCase();
+      return itemCatStr === target;
+    }
+
+    return false;
+  };
+
+  // Filter products by Category
   let filteredData = selectedCategory
-    ? productData.filter((item) => item.category?._id === selectedCategory)
+    ? productData.filter((item) => matchesCategory(item, selectedCategory))
     : productData;
 
+  // Filter products by Search query
   if (search.trim()) {
-    filteredData = filteredData.filter(
-      (item) =>
-        item.productName.toLowerCase().includes(search.trim().toLowerCase()) ||
-        item.category?.categoryName?.toLowerCase().includes(search.trim().toLowerCase())
-    );
+    const query = search.trim().toLowerCase();
+    filteredData = filteredData.filter((item) => {
+      const pName = (item.productName || item.name || "").toLowerCase();
+      const catName = (typeof item.category === "object" ? item.category?.categoryName : item.category || "").toLowerCase();
+      return pName.includes(query) || catName.includes(query);
+    });
   }
 
+  // Sort products
   if (sortBy === "low") {
     filteredData = [...filteredData].sort((a, b) => a.price - b.price);
   } else if (sortBy === "high") {
@@ -69,7 +94,7 @@ const Product = () => {
       toast: true,
       position: "top-end",
       icon: "success",
-      title: `${item.productName} added to cart`,
+      title: `${item.productName || item.name} added to cart`,
       showConfirmButton: false,
       timer: 1300,
     });
@@ -116,16 +141,23 @@ const Product = () => {
               🔥 All Items ({productData?.length || 0})
             </button>
 
-            {categoryData?.map((cat) => (
-              <button
-                key={cat._id}
-                className={`category-pill ${selectedCategory === cat._id ? "active" : ""}`}
-                onClick={() => setSelectedCategory(cat._id)}
-              >
-                <img src={cat.image} alt={cat.categoryName} className="pill-img" />
-                {cat.categoryName}
-              </button>
-            ))}
+            {categoryData?.map((cat) => {
+              const catIdentifier = cat.categoryName || cat._id;
+              const isSelected =
+                selectedCategory.toLowerCase() === (cat.categoryName || "").toLowerCase() ||
+                selectedCategory.toLowerCase() === (cat._id || "").toLowerCase();
+
+              return (
+                <button
+                  key={cat._id || cat.categoryName}
+                  className={`category-pill ${isSelected ? "active" : ""}`}
+                  onClick={() => setSelectedCategory(catIdentifier)}
+                >
+                  {cat.image && <img src={cat.image} alt={cat.categoryName} className="pill-img" />}
+                  {cat.categoryName}
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -166,7 +198,7 @@ const Product = () => {
           {filteredData?.length === 0 ? (
             <div className="empty-products-state glass-card">
               <span className="empty-icon">🔎</span>
-              <h3>No products found for "{search}"</h3>
+              <h3>No products found {selectedCategory ? `in "${selectedCategory}"` : search ? `for "${search}"` : ""}</h3>
               <p>We couldn't find anything matching your search query or selected category.</p>
               <button
                 className="reset-filters-btn"

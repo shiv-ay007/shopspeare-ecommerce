@@ -238,8 +238,8 @@ const Home = () => {
               {categoryData.map((cat) => (
                 <div
                   className="category-card-item glass-card"
-                  key={cat._id}
-                  onClick={() => navigate("/Product")}
+                  key={cat._id || cat.categoryName}
+                  onClick={() => navigate(`/Product?category=${encodeURIComponent(cat.categoryName || cat._id)}`)}
                 >
                   <img src={cat.image} alt={cat.categoryName} className="category-img" />
                   <div className="category-overlay">
