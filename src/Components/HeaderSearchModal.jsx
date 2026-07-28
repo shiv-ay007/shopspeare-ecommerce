@@ -20,8 +20,8 @@ const HeaderSearchModal = ({ isOpen, onClose, onSelectProduct }) => {
 
   const filteredProducts = query.trim()
     ? products.filter((item) =>
-        item.productName.toLowerCase().includes(query.trim().toLowerCase()) ||
-        item.category?.categoryName?.toLowerCase().includes(query.trim().toLowerCase())
+        (item.productName || item.name || "").toLowerCase().includes(query.trim().toLowerCase()) ||
+        (typeof item.category === 'object' ? item.category?.categoryName : item.category || "").toLowerCase().includes(query.trim().toLowerCase())
       )
     : products.slice(0, 5); // Show 5 featured items when empty
 
@@ -85,8 +85,11 @@ const HeaderSearchModal = ({ isOpen, onClose, onSelectProduct }) => {
             <div className="search-results-list">
               {filteredProducts.slice(0, 6).map((item) => {
                 const itemImg =
-                  item.images?.[0]?.url ||
+                  (item.images && item.images[0]?.url) ||
+                  item.image ||
                   "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80";
+                const itemTitle = item.productName || item.name || "Product";
+                const catName = typeof item.category === 'object' ? item.category?.categoryName : (item.category || "Featured");
 
                 return (
                   <div
@@ -94,12 +97,12 @@ const HeaderSearchModal = ({ isOpen, onClose, onSelectProduct }) => {
                     key={item._id}
                     onClick={() => handleResultClick(item)}
                   >
-                    <img src={itemImg} alt={item.productName} className="result-thumb" />
+                    <img src={itemImg} alt={itemTitle} className="result-thumb" />
                     <div className="result-info">
                       <span className="result-cat">
-                        {item.category?.categoryName || "Featured"}
+                        {catName}
                       </span>
-                      <h4 className="result-title">{item.productName}</h4>
+                      <h4 className="result-title">{itemTitle}</h4>
                       <span className="result-rating">⭐ {item.rating || 4.8}</span>
                     </div>
                     <div className="result-price-col">

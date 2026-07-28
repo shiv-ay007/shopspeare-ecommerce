@@ -173,16 +173,19 @@ const Cart = () => {
           <div className="cart-items-list">
             {cart.map((item) => {
               const itemImg =
-                item.images?.[0]?.url ||
+                (item.images && item.images[0]?.url) ||
+                item.image ||
                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80";
+              const itemTitle = item.productName || item.name || "Product";
+              const catName = typeof item.category === 'object' ? item.category?.categoryName : (item.category || "Curated");
 
               return (
                 <div className="cart-item-card glass-card" key={item._id}>
-                  <img src={itemImg} alt={item.productName} className="cart-item-thumb" />
+                  <img src={itemImg} alt={itemTitle} className="cart-item-thumb" />
 
                   <div className="cart-item-details">
-                    <span className="cart-item-cat">{item.category?.categoryName || "Curated"}</span>
-                    <h3 className="cart-item-name">{item.productName}</h3>
+                    <span className="cart-item-cat">{catName}</span>
+                    <h3 className="cart-item-name">{itemTitle}</h3>
                     <p className="cart-item-unit-price">
                       ₹{Number(item.price).toLocaleString()} each
                     </p>

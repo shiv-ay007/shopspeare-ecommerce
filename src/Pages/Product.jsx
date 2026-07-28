@@ -185,8 +185,11 @@ const Product = () => {
                 const qtyInCart = getCartQty(item._id);
                 const isFavorited = isInWishlist(item._id);
                 const itemImg =
-                  item.images?.[0]?.url ||
+                  (item.images && item.images[0]?.url) ||
+                  item.image ||
                   "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+                const itemTitle = item.productName || item.name || "Product";
+                const catName = typeof item.category === 'object' ? item.category?.categoryName : (item.category || "Curated");
 
                 return (
                   <div
@@ -203,7 +206,7 @@ const Product = () => {
                       >
                         {isFavorited ? "❤️" : "🤍"}
                       </button>
-                      <img src={itemImg} alt={item.productName} className="card-thumb" />
+                      <img src={itemImg} alt={itemTitle} className="card-thumb" />
                       <div className="hover-quick-overlay">
                         <span>🔍 Quick View</span>
                       </div>
@@ -211,9 +214,9 @@ const Product = () => {
 
                     <div className="card-details-box">
                       <span className="card-category-tag">
-                        {item.category?.categoryName || "Curated"}
+                        {catName}
                       </span>
-                      <h3 className="card-item-title">{item.productName}</h3>
+                      <h3 className="card-item-title">{itemTitle}</h3>
 
                       <div className="card-rating">
                         <span className="stars">⭐ {item.rating || 4.8}</span>

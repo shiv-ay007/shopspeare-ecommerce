@@ -272,8 +272,11 @@ const Home = () => {
                 const qtyInCart = getCartQty(item._id);
                 const isFavorited = isInWishlist(item._id);
                 const itemImg =
-                  item.images?.[0]?.url ||
+                  (item.images && item.images[0]?.url) ||
+                  item.image ||
                   "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+                const itemTitle = item.productName || item.name || "Product";
+                const catName = typeof item.category === 'object' ? item.category?.categoryName : (item.category || "Featured");
 
                 return (
                   <div
@@ -290,7 +293,7 @@ const Home = () => {
                       >
                         {isFavorited ? "❤️" : "🤍"}
                       </button>
-                      <img src={itemImg} alt={item.productName} className="product-thumb" />
+                      <img src={itemImg} alt={itemTitle} className="product-thumb" />
                       <div className="quick-view-hover">
                         <span>🔍 Quick View</span>
                       </div>
@@ -298,9 +301,9 @@ const Home = () => {
 
                     <div className="product-info-box">
                       <span className="product-category-tag">
-                        {item.category?.categoryName || "Featured"}
+                        {catName}
                       </span>
-                      <h3 className="product-title">{item.productName}</h3>
+                      <h3 className="product-title">{itemTitle}</h3>
 
                       <div className="product-rating-row">
                         <span className="stars">⭐ {item.rating || 4.8}</span>

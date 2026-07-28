@@ -12,7 +12,9 @@ const ProductModal = ({ product, onClose }) => {
   if (!product) return null;
 
   const isFavorited = isInWishlist(product._id);
-  const mainImg = product.images?.[0]?.url || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+  const mainImg = (product.images && product.images[0]?.url) || product.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80";
+  const itemTitle = product.productName || product.name || "Product";
+  const catName = typeof product.category === 'object' ? product.category?.categoryName : (product.category || "Featured");
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -22,7 +24,7 @@ const ProductModal = ({ product, onClose }) => {
       toast: true,
       position: "top-end",
       icon: "success",
-      title: `${quantity} × ${product.productName} added!`,
+      title: `${quantity} × ${itemTitle} added!`,
       showConfirmButton: false,
       timer: 1500,
     });
@@ -51,8 +53,8 @@ const ProductModal = ({ product, onClose }) => {
         <div className="modal-body-grid">
           {/* Image side */}
           <div className="modal-image-col">
-            <img src={mainImg} alt={product.productName} className="modal-main-img" />
-            <span className="modal-badge">{product.category?.categoryName || "Featured"}</span>
+            <img src={mainImg} alt={itemTitle} className="modal-main-img" />
+            <span className="modal-badge">{catName}</span>
           </div>
 
           {/* Details side */}
@@ -62,7 +64,7 @@ const ProductModal = ({ product, onClose }) => {
               <span className="review-count">({product.reviewsCount || 120} reviews)</span>
             </div>
 
-            <h2 className="modal-title">{product.productName}</h2>
+            <h2 className="modal-title">{itemTitle}</h2>
 
             <div className="modal-price-row">
               <span className="modal-price">₹{Number(product.price).toLocaleString()}</span>
